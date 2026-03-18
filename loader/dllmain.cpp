@@ -28,9 +28,9 @@ DWORD WINAPI OnProcessAttach(LPVOID) {
 
     SetDllDirectoryA("loader");
 
-    const HMODULE minHook = LoadLibraryA("loader/MinHook.x64.dll");
+    const HMODULE minHook = LoadLibraryA("loader/MinHook.x86.dll");
     if (minHook == nullptr) {
-        printf_s("Failed to load MinHook.x64.dll!");
+        printf_s("Failed to load MinHook.x86.dll!");
         return 0;
     }
 

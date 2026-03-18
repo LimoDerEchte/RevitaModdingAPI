@@ -17,7 +17,7 @@ endif()
 include("${CMAKE_CURRENT_SOURCE_DIR}/local_config.cmake")
 
 include_directories(include)
-set(MINHOOK_LIB ${REVITA_GAME_FOLDER}/loader/MinHook.x64.lib)
+set(MINHOOK_LIB ${REVITA_GAME_FOLDER}/loader/MinHook.x86.lib)
 
 # Loader
 add_library(loader_proxy SHARED loader/dllmain.cpp
