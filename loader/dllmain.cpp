@@ -5,10 +5,7 @@
 #include "Loader.hpp"
 #include "Console/Console.hpp"
 
-#pragma comment(linker, "/export:??0MiniDmpSender@@QEAA@PEB_W000K@Z=BugSplat64_orig.??0MiniDmpSender@@QEAA@PEB_W000K@Z")
-#pragma comment(linker, "/export:??1MiniDmpSender@@UEAA@XZ=BugSplat64_orig.??1MiniDmpSender@@UEAA@XZ")
-#pragma comment(linker, "/export:?createReport@MiniDmpSender@@QEAAXPEAU_EXCEPTION_POINTERS@@@Z=BugSplat64_orig.?createReport@MiniDmpSender@@QEAAXPEAU_EXCEPTION_POINTERS@@@Z")
-#pragma comment(linker, "/export:?resetVersionString@MiniDmpSender@@QEAAXPEB_W@Z=BugSplat64_orig.?resetVersionString@MiniDmpSender@@QEAAXPEB_W@Z")
+#pragma comment(linker, "/export:get_server_real_time=SteamAPIExtensionOriginal.get_server_real_time")
 
 DWORD WINAPI OnProcessAttach(LPVOID lpParam);
 DWORD WINAPI OnProcessDetach(LPVOID lpParam);
