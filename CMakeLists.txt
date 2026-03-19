@@ -33,7 +33,6 @@ add_library(RevitaModLoader SHARED
         loader/Console/Console.cpp
 )
 target_include_directories(RevitaModLoader PRIVATE loader ${YYTK_INCLUDE})
-target_link_libraries(RevitaModLoader PUBLIC YYTK)
 
 # Core Mods
 add_subdirectory(example_mod)
