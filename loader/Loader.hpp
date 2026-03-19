@@ -21,11 +21,13 @@ struct LoadedMod {
 };
 
 class Loader {
+    static bool wasInitialized;
     static void LoadMod(HMODULE module, const wchar_t* file);
     static void Traverse(const fs::directory_iterator& dir);
 
 public:
     static std::vector<std::unique_ptr<LoadedMod>> loadedMods;
 
+    static void Entry();
     static void LoadMods(const std::string& folder);
 };

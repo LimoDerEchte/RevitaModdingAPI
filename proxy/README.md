@@ -1,0 +1,1 @@
+The proxy is a modified version of this project: https://github.com/maniman303/winmm-proxy/

@@ -19,12 +19,16 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/local_config.cmake")
 include_directories(include)
 set(MINHOOK_LIB ${REVITA_GAME_FOLDER}/loader/MinHook.x86.lib)
 
+# Proxy
+add_library(winmm SHARED proxy/proxy.cpp)
+set_target_properties(winmm PROPERTIES LINK_FLAGS "/DEF:${CMAKE_CURRENT_SOURCE_DIR}/proxy/proxy.def")
+
 # Loader
-add_library(loader_proxy SHARED loader/dllmain.cpp
-        loader/Console/Console.cpp
+add_library(RevitaModLoader SHARED
         loader/Loader.cpp
+        loader/Console/Console.cpp
 )
-target_include_directories(loader_proxy PRIVATE loader)
+target_include_directories(RevitaModLoader PRIVATE loader)
 
 # Core Mods
 add_subdirectory(example_mod)

@@ -1,6 +1,9 @@
 
 #include "Loader.hpp"
 
+#include "Console/Console.hpp"
+
+bool Loader::wasInitialized = false;
 std::vector<std::unique_ptr<LoadedMod>> Loader::loadedMods{};
 
 void Loader::LoadMods(const std::string &folder) {
@@ -18,6 +21,39 @@ void Loader::LoadMods(const std::string &folder) {
     }
 
     printf_s("\nMods Loaded.\n\n");
+}
+
+// Little trampoline so the proxy can properly call this
+extern "C" __declspec(dllexport) void revita_loader_entry() {
+    Loader::Entry();
+}
+
+void Loader::Entry() {
+    if (wasInitialized)
+        return;
+    wasInitialized = true;
+
+    Console::Alloc();
+    printf_s("Revita Mod Loader Version 0.1.0\n\n");
+
+    const HMODULE minHook = LoadLibraryA("loader/MinHook.x86.dll");
+    if (minHook == nullptr) {
+        printf_s("Failed to load MinHook.x86.dll!");
+        return;
+    }
+
+    const auto mh_initialize = GetProcAddress(minHook, "MH_Initialize");
+    if (mh_initialize == nullptr) {
+        printf_s("Failed to get MH_Initialize!");
+        return;
+    }
+
+    if (mh_initialize() != 0) {
+        printf_s("Failed to initialize MinHook!");
+        return;
+    }
+    printf_s("MinHook successfully initialized.\n");
+    LoadMods("mods");
 }
 
 void Loader::LoadMod(const HMODULE module, const wchar_t* file) {
