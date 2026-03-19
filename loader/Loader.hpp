@@ -22,6 +22,9 @@ struct LoadedMod {
 
 class Loader {
     static bool wasInitialized;
+
+    static void LoadMinHook();
+    static void LoadAurie();
     static void LoadMod(HMODULE module, const wchar_t* file);
     static void Traverse(const fs::directory_iterator& dir);
 

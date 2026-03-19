@@ -1,3 +1,6 @@
 [submodule "minhook"]
 	path = lib/minhook
 	url = https://github.com/TsudaKageyu/minhook
+[submodule "lib/YYToolkit"]
+	path = lib/YYToolkit
+	url = https://github.com/AurieFramework/YYToolkit.git

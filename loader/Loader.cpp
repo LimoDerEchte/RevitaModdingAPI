@@ -2,6 +2,7 @@
 #include "Loader.hpp"
 
 #include "Console/Console.hpp"
+#include <Aurie/shared.hpp>
 
 bool Loader::wasInitialized = false;
 std::vector<std::unique_ptr<LoadedMod>> Loader::loadedMods{};
@@ -28,6 +29,12 @@ extern "C" __declspec(dllexport) void revita_loader_entry() {
     Loader::Entry();
 }
 
+typedef void(*ModuleOperationCallbackFn)(
+    Aurie::AurieModule* AffectedModule,
+    Aurie::AurieModuleOperationType OperationType,
+    Aurie::AurieOperationInfo* OperationInfo
+);
+
 void Loader::Entry() {
     if (wasInitialized)
         return;
@@ -36,6 +43,12 @@ void Loader::Entry() {
     Console::Alloc();
     printf_s("Revita Mod Loader Version 0.1.0\n\n");
 
+    LoadAurie();
+    LoadMinHook();
+    LoadMods("mods");
+}
+
+void Loader::LoadMinHook() {
     const HMODULE minHook = LoadLibraryA("loader/MinHook.x86.dll");
     if (minHook == nullptr) {
         printf_s("Failed to load MinHook.x86.dll!");
@@ -53,7 +66,11 @@ void Loader::Entry() {
         return;
     }
     printf_s("MinHook successfully initialized.\n");
-    LoadMods("mods");
+}
+
+void Loader::LoadAurie() {
+    if (LoadLibraryA("loader/AurieCore-x86.dll") != nullptr)
+        printf_s("Aurie successfully initialized.\n");
 }
 
 void Loader::LoadMod(const HMODULE module, const wchar_t* file) {
@@ -114,7 +131,8 @@ void Loader::LoadMod(const HMODULE module, const wchar_t* file) {
 void Loader::Traverse(const fs::directory_iterator &dir) { // NOLINT(*-no-recursion)
     for (const auto &entry : fs::directory_iterator(dir)) {
         if (entry.is_directory()) {
-            Traverse(fs::directory_iterator(entry));
+            if (entry.path().filename() != "Aurie")
+                Traverse(fs::directory_iterator(entry));
             continue;
         }
         if (!entry.is_regular_file())
