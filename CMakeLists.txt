@@ -17,22 +17,26 @@ endif()
 include("${CMAKE_CURRENT_SOURCE_DIR}/local_config.cmake")
 
 # Libs
-set(YYTK_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/lib/YYToolkit/ExamplePlugin/include)
-set(MINHOOK_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/lib/minhook/include)
-set(MINHOOK_LIB ${REVITA_GAME_FOLDER}/lib/loader/MinHook.x86.lib)
+set(LIB_INCLUDES
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/YYToolkit
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/Aurie
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/patches
+)
 
-include_directories(include)
+set(IMGUI_SOURCE
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/imgui.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/imgui_demo.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/imgui_draw.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/imgui_tables.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/imgui_widgets.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/backends/imgui_impl_win32.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib/imgui/backends/imgui_impl_dx11.cpp
+)
 
 # Proxy
 add_library(winmm SHARED proxy/proxy.cpp)
 set_target_properties(winmm PROPERTIES LINK_FLAGS "/DEF:${CMAKE_CURRENT_SOURCE_DIR}/proxy/proxy.def")
 
-# Loader
-add_library(RevitaModLoader SHARED
-        loader/Loader.cpp
-        loader/Console/Console.cpp
-)
-target_include_directories(RevitaModLoader PRIVATE loader ${YYTK_INCLUDE})
-
 # Core Mods
-add_subdirectory(example_mod)
+add_subdirectory(core_mod)

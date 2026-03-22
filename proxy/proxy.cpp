@@ -417,20 +417,8 @@ DWORD WINAPI OnProcessAttach([[maybe_unused]] LPVOID lpParam) {
 
 	SetDllDirectoryA("loader");
 
-	const HMODULE loader = LoadLibraryA("loader/RevitaModLoader.dll");
-	if (loader == nullptr) {
-		error_box("Failed to load RevitaModLoader.dll!");
-		return 0;
-	}
-
-	const auto entry = reinterpret_cast<RevitaLoaderEntryFunc>(GetProcAddress(loader, "revita_loader_entry"));
-	if (entry == nullptr) {
-		error_box("Failed to find revita_loader_entry!");
-		return 0;
-	}
-
-	if (entry() != 0) {
-		error_box("Failed to initialize RevitaModLoader!");
+	if (const HMODULE loader = LoadLibraryA("mods/Native/AurieCore-x86.dll"); loader == nullptr) {
+		error_box("Failed to load mods/Native/AurieCore-x86.dll!");
 		return 0;
 	}
 	return 0;
@@ -439,7 +427,7 @@ DWORD WINAPI OnProcessAttach([[maybe_unused]] LPVOID lpParam) {
 BOOL WINAPI DllMain(const HINSTANCE hInstDll, const DWORD fdwReason, LPVOID _) { // NOLINT(*-misplaced-const)
 	if (fdwReason == DLL_PROCESS_ATTACH) {
 		DisableThreadLibraryCalls(hInstDll);
-		if (const HANDLE hHandle = CreateThread(nullptr, 0, OnProcessAttach, hInstDll, 0, nullptr); hHandle != nullptr)
+		if (const HANDLE hHandle = CreateThread(nullptr, 0, OnProcessAttach, hInstDll, 0, nullptr); hHandle != nullptr) // NOLINT(*-misplaced-const)
 			CloseHandle(hHandle);
 	}
 	return TRUE;
