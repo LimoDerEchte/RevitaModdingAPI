@@ -41,7 +41,7 @@ void frameCallback(YYTK::FWFrame& frame) {
     }
 
     ID3D11Texture2D* backBuffer = nullptr;
-    if (FAILED(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer)))
+    if (FAILED(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer))))
         return;
 
     // 2. Create a new render target view
@@ -72,7 +72,6 @@ EXPORTED Aurie::AurieStatus ModuleInitialize(IN Aurie::AurieModule* module, IN c
         return Aurie::AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
 
     yytk->CreateCallback(module, YYTK::EVENT_FRAME, frameCallback, 0);
-    yytk->CreateCallback(module, YYTK::EVENT_RESIZE, resizeCallback, 0);
 
     yytk->PrintInfo("Revita Core Mod successfully initialized!");
     return Aurie::AURIE_SUCCESS;
