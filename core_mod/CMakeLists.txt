@@ -7,10 +7,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Mod Library
 add_library(RevitaCoreMod SHARED RevitaCoreMod.cpp
-        ${IMGUI_SOURCE}
+        ${LIB_SOURCES}
 )
 
-target_include_directories(RevitaCoreMod PRIVATE
+target_include_directories(RevitaCoreMod PUBLIC
         .
         ${LIB_INCLUDES}
 )
+
+target_compile_definitions(RevitaCoreMod PUBLIC
+        YYTK_DEFINE_INTERNAL
+)
+
+add_custom_command(TARGET RevitaCoreMod POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:RevitaCoreMod> ${REVITA_GAME_FOLDER}/mods/Aurie)
