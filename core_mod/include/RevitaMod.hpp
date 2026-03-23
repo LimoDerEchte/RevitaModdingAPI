@@ -2,12 +2,19 @@
 #pragma once
 
 #include <Windows.h>
+#include <imgui.h>
+
+#include "RevitaWindow.hpp"
 
 struct IRevitaMod;
 typedef IRevitaMod*(*get_interface_f)();
 
 struct IRevitaMod {
     virtual ~IRevitaMod() = default;
+
+    virtual void RegisterWindow(ImGuiRenderedWindow* window);
+    virtual void UnregisterWindow(ImGuiRenderedWindow* window);
+    virtual ImGuiContext* GetImGuiContext();
 
     static IRevitaMod* GetInterface() {
         static IRevitaMod* instance = nullptr;

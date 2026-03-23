@@ -40,5 +40,6 @@ add_library(winmm SHARED proxy/proxy.cpp)
 set_target_properties(winmm PROPERTIES LINK_FLAGS "/DEF:${CMAKE_CURRENT_SOURCE_DIR}/proxy/proxy.def")
 add_custom_command(TARGET winmm POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:winmm> ${REVITA_GAME_FOLDER})
 
-# Core Mod
+# Mods
 add_subdirectory(core_mod)
+add_subdirectory(test_mod)

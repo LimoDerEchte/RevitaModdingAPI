@@ -4,6 +4,7 @@
 #include <backends/imgui_impl_win32.h>
 #include <backends/imgui_impl_dx11.h>
 
+#include "impl/RevitaCoreGlobals.hpp"
 #include "windows/RoomInfoWindow.hpp"
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandlerEx(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, ImGuiIO& io);
@@ -57,6 +58,10 @@ void frameCallback(YYTK::FWFrame& frame) {
     ImGui::NewFrame();
 
     RoomInfoWindow::Draw(yytk);
+
+    for (const auto window : RevitaCoreMod::windows) {
+        window->Render();
+    }
 
     ImGui::Render();
 
