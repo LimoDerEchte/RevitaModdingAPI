@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Mod Library
 add_library(RevitaCoreMod SHARED RevitaCoreMod.cpp
+        impl/RevitaModImpl.cpp
         ${LIB_SOURCES}
 )
 
