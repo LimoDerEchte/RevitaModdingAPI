@@ -1,16 +1,21 @@
 
 #include <YYToolkit/YYTK_Shared.hpp>
-#include <d3d11.h>
+
 #include <backends/imgui_impl_win32.h>
 #include <backends/imgui_impl_dx11.h>
+
+#include "windows/RoomInfoWindow.hpp"
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandlerEx(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam, ImGuiIO& io);
 
 YYTK::YYTKInterface* yytk;
 
 bool imguiInitialized = false;
+bool imguiInteractable = false;
 
 // ReSharper disable once CppDFAConstantFunctionResult
 void frameCallback(YYTK::FWFrame& frame) {
-    const auto [swapChain, syncInterval, flags] = frame.Arguments();
+    const auto [ swapChain, syncInterval, flags ] = frame.Arguments();
 
     DXGI_SWAP_CHAIN_DESC desc;
     ID3D11Device* device = nullptr;
@@ -27,24 +32,19 @@ void frameCallback(YYTK::FWFrame& frame) {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
 
-        ImGuiIO& io = ImGui::GetIO();
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-
         ImGuiStyle &style = ImGui::GetStyle();
-        style.WindowRounding = 3.0f;
-        style.FontScaleDpi = main_scale;
+        style.WindowRounding = 10.0f;
+        style.FontScaleDpi = main_scale * 1.2f;
 
-        imguiInitialized = true;
         ImGui_ImplWin32_Init(desc.OutputWindow);
         ImGui_ImplDX11_Init(device, context);
+        imguiInitialized = true;
     }
 
     ID3D11Texture2D* backBuffer = nullptr;
     if (FAILED(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer))))
         return;
 
-    // 2. Create a new render target view
     ID3D11RenderTargetView* rtv = nullptr;
     if (FAILED(device->CreateRenderTargetView(backBuffer, nullptr, &rtv))) {
         backBuffer->Release();
@@ -52,17 +52,50 @@ void frameCallback(YYTK::FWFrame& frame) {
     }
     backBuffer->Release();
 
-    ImGui_ImplDX11_NewFrame();
     ImGui_ImplWin32_NewFrame();
+    ImGui_ImplDX11_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::ShowDemoWindow();
+    RoomInfoWindow::Draw(yytk);
 
     ImGui::Render();
 
     context->OMSetRenderTargets(1, &rtv, nullptr);
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     rtv->Release();
+}
+
+void resizeCallback(YYTK::FWResize& data) {
+    const auto swapChain = data.Arguments()._Myfirst._Val;
+
+    DXGI_SWAP_CHAIN_DESC desc;
+    if (FAILED(swapChain->GetDesc(&desc)))
+        return;
+
+    ImGui_ImplWin32_Shutdown();
+    ImGui_ImplWin32_Init(desc.OutputWindow);
+}
+
+void wndProcCallback(YYTK::FWWndProc& data) {
+    if (!imguiInitialized)
+        return;
+
+    const auto [ wnd, msg, wParam, lParam ] = data.Arguments();
+    ImGuiIO& io = ImGui::GetIO();
+
+    if (msg == WM_KEYDOWN && wParam == VK_BACK) {
+        imguiInteractable = !imguiInteractable;
+
+        io.ConfigFlags = imguiInteractable
+            ? io.ConfigFlags & ~ImGuiConfigFlags_NoMouseCursorChange
+            : io.ConfigFlags | ImGuiConfigFlags_NoMouseCursorChange;
+        io.MouseDrawCursor = imguiInteractable;
+        data.Override(0);
+        return;
+    }
+
+    if (imguiInteractable && ((msg >= WM_MOUSEFIRST && msg <= WM_MOUSELAST) || (msg >= WM_KEYFIRST && msg <= WM_KEYLAST)))
+        data.Override(ImGui_ImplWin32_WndProcHandlerEx(wnd, msg, wParam, lParam, io));
 }
 
 EXPORTED Aurie::AurieStatus ModuleInitialize(IN Aurie::AurieModule* module, IN const std::filesystem::path&) {
@@ -72,6 +105,8 @@ EXPORTED Aurie::AurieStatus ModuleInitialize(IN Aurie::AurieModule* module, IN c
         return Aurie::AURIE_MODULE_DEPENDENCY_NOT_RESOLVED;
 
     yytk->CreateCallback(module, YYTK::EVENT_FRAME, frameCallback, 0);
+    yytk->CreateCallback(module, YYTK::EVENT_RESIZE, resizeCallback, 0);
+    yytk->CreateCallback(module, YYTK::EVENT_WNDPROC, wndProcCallback, 0);
 
     yytk->PrintInfo("Revita Core Mod successfully initialized!");
     return Aurie::AURIE_SUCCESS;
